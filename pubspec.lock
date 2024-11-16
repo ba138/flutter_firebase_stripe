@@ -81,6 +81,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  easy_url_launcher:
+    dependency: "direct main"
+    description:
+      name: easy_url_launcher
+      sha256: "3ffb6513e556f4ee4f31c0664046ffdc604bd34b1cbe45093b67cc99009d5eed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.7"
   fake_async:
     dependency: transitive
     description:

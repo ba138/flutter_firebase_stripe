@@ -1,25 +1,29 @@
+import 'package:easy_url_launcher/easy_url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:flutter_firebase_stripe/signup_screen.dart';
 
 class StripeConnectScreen extends StatelessWidget {
-  final String stripeClientId = 'YOUR_STRIPE_CLIENT_ID';
-  final String redirectUri = 'YOUR_FIREBASE_FUNCTION_REDIRECT_URL';
+  final String stripeClientId = 'ca_R9k4oiSuxVz13O4iT42MYJFQy6a1G8IR';
+  final String baseRedirectUri =
+      'https://us-central1-stripe-44121.cloudfunctions.net/stripeOAuthCallback';
 
   Future<void> _connectWithStripe() async {
-    final Uri stripeUrl = Uri.parse(
-      'https://connect.stripe.com/oauth/authorize'
-      '?response_type=code'
-      '&client_id=$stripeClientId'
-      '&scope=read_write'
-      '&redirect_uri=$redirectUri',
-    );
+    var auth = FirebaseAuth.instance.currentUser!.uid;
+    final String encodedUserId = Uri.encodeComponent(auth);
 
-    if (await canLaunchUrl(stripeUrl)) {
-      await launchUrl(stripeUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not open Stripe Connect URL';
-    }
+    // Use the `state` parameter to pass the userId safely
+    final Uri stripeUrl = Uri.parse('https://connect.stripe.com/oauth/authorize'
+        '?redirect_uri=https://us-central1-stripe-44121.cloudfunctions.net/stripeOAuthCallback' // your Firebase Cloud Function endpoint
+        '&client_id=ca_R9k4oiSuxVz13O4iT42MYJFQy6a1G8IR'
+        '&state=$encodedUserId' // Pass userId inside state
+        '&response_type=code'
+        '&scope=read_write'
+        '&stripe_user[country]=DE');
+
+    debugPrint("Stripe URL: ${stripeUrl.toString()}");
+    EasyLauncher.url(url: stripeUrl.toString());
   }
 
   @override
@@ -28,11 +32,29 @@ class StripeConnectScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Connect with Stripe"),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _connectWithStripe,
-          child: const Text("Connect with Stripe"),
-        ),
+      body: Column(
+        children: [
+          Center(
+            child: ElevatedButton(
+              onPressed: _connectWithStripe,
+              child: const Text("Connect with Stripe"),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (c) => const SignupScreen(),
+                  ),
+                );
+              },
+              child: const Text("Logout"),
+            ),
+          ),
+        ],
       ),
     );
   }
