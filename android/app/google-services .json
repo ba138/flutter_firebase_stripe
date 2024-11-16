@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "728950410430",
+    "project_id": "stripe-44121",
+    "storage_bucket": "stripe-44121.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:728950410430:android:b9d66c34a6e8368fa622ef",
+        "android_client_info": {
+          "package_name": "com.basit.flutter_firebase_stripe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX3e2Fg8rhygo5dIekovn2Q3XqEhHT8-o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

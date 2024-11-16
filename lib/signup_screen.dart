@@ -53,8 +53,11 @@ class SignupScreen extends StatelessWidget {
                 height: 40,
               ),
               Center(
-                  child:
-                      ElevatedButton(onPressed: () {}, child: Text("SignUp")))
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text("SignUp"),
+                ),
+              )
             ],
           ),
         ),
