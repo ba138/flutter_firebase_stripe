@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_stripe/Repositories/auth_repository.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -8,7 +9,7 @@ class SignupScreen extends StatelessWidget {
     var nameController = TextEditingController();
     var emailController = TextEditingController();
     var passwordController = TextEditingController();
-
+    AuthRepository authRepo = AuthRepository();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -54,7 +55,14 @@ class SignupScreen extends StatelessWidget {
               ),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    authRepo.signupUser(
+                      emailController.text,
+                      passwordController.text,
+                      nameController.text,
+                      context,
+                    );
+                  },
                   child: const Text("SignUp"),
                 ),
               )
