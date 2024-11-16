@@ -14,25 +14,32 @@ class _SplashScreenState extends State<SplashScreen> {
   var auth = FirebaseAuth.instance;
   Future<void> seasionHandler() async {
     Future.delayed(
-      const Duration(seconds: 3),
+      const Duration(seconds: 5),
       () {
-        if (auth.currentUser == null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (c) => const SignupScreen(),
-            ),
-          );
-        } else {
+        if (auth.currentUser?.uid != null) {
+          debugPrint("this is user id:${auth.currentUser!.uid}");
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (c) => StripeConnectScreen(),
             ),
           );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (c) => const SignupScreen(),
+            ),
+          );
         }
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    seasionHandler();
   }
 
   @override

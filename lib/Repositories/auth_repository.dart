@@ -10,7 +10,7 @@ class AuthRepository {
       String email, String password, String name, BuildContext context) async {
     try {
       auth.createUserWithEmailAndPassword(email: email, password: password);
-      debugPrint("user created and save details");
+      debugPrint("user created");
       saveSellerInfo(name);
       Navigator.push(
         context,
@@ -34,7 +34,7 @@ class AuthRepository {
       };
       fireStore.collection("Sellers").doc(auth.currentUser!.uid).set(userData);
       // auth.createUserWithEmailAndPassword(email: email, password: password);
-      debugPrint("user created");
+      debugPrint(" save details");
     } catch (e) {
       debugPrint(e.toString());
     }
