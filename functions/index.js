@@ -10,7 +10,6 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
   const authorizationCode = req.query.code;
 
   try {
-    // Use environment variables for Stripe client ID and secret key
     const response = await axios.post('https://connect.stripe.com/oauth/token', null, {
       params: {
         client_id: functions.config().stripe.client_id,
@@ -26,7 +25,7 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
     const userId = req.query.state;
     if (userId) {
       // Save the stripeAccountId to the user's document in Firestore
-      await admin.firestore().collection('users').doc(userId).update({
+      await admin.firestore().collection('Sellers').doc(userId).update({
         stripeAccountId: stripeAccountId,
       });
 
@@ -37,6 +36,6 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
     }
   } catch (error) {
     console.error('Error during Stripe OAuth callback:', error);
-    res.status(500).send('Error connecting to Stripe.');
+    res.status(500).send(response.data.stripe_user_id);
   }
 });
