@@ -1,6 +1,7 @@
 import 'package:easy_url_launcher/easy_url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_stripe/payment_screen.dart';
 
 import 'package:flutter_firebase_stripe/signup_screen.dart';
 
@@ -60,6 +61,20 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
                 );
               },
               child: const Text("Logout"),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (c) => const PaymentScreen(),
+                  ),
+                );
+              },
+              child: const Text("Payment Screen"),
             ),
           ),
         ],
