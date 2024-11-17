@@ -4,8 +4,16 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_firebase_stripe/signup_screen.dart';
 
-class StripeConnectScreen extends StatelessWidget {
+class StripeConnectScreen extends StatefulWidget {
+  const StripeConnectScreen({super.key});
+
+  @override
+  State<StripeConnectScreen> createState() => _StripeConnectScreenState();
+}
+
+class _StripeConnectScreenState extends State<StripeConnectScreen> {
   final String stripeClientId = 'ca_R9k4oiSuxVz13O4iT42MYJFQy6a1G8IR';
+
   final String baseRedirectUri =
       'https://us-central1-stripe-44121.cloudfunctions.net/stripeOAuthCallback';
 

@@ -30,7 +30,7 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
       });
 
       // Redirect back to the app with a success message or URI scheme
-      res.redirect('yourapp://oauth/callback'); // Replace with your app's URI scheme
+      res.redirect('yourapp://oauth/callback'); 
     } else {
       res.status(400).send('User ID is missing.');
     }
