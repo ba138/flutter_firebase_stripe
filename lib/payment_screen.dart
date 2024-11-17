@@ -47,20 +47,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
           final paymentResults = data['paymentResults'];
           for (var result in paymentResults) {
             if (result['success']) {
-              print(
+              debugPrint(
                   'Payment for seller ${result['seller']} succeeded. Client secret: ${result['paymentIntent']}');
             } else {
-              print('Payment for seller ${result['seller']} failed.');
+              debugPrint('Payment for seller ${result['seller']} failed.');
             }
           }
         } else {
-          print('Payment failed: ${data['error']}');
+          debugPrint('Payment failed: ${data['error']}');
         }
       } else {
-        print('Server error: ${response.statusCode}');
+        debugPrint('Server error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error initiating payment: $e');
+      debugPrint('Error initiating payment: $e');
     }
   }
 
