@@ -3,7 +3,6 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 admin.initializeApp();
 
-// Load Stripe client with the secret key from environment config
 const stripe = require('stripe')(functions.config().stripe.secret_key);
 
 exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
@@ -20,22 +19,62 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
     });
 
     const stripeAccountId = response.data.stripe_user_id;
-
-    // Get user ID from a query parameter
     const userId = req.query.state;
     if (userId) {
-      // Save the stripeAccountId to the user's document in Firestore
       await admin.firestore().collection('Sellers').doc(userId).update({
         stripeAccountId: stripeAccountId,
       });
-
-      // Redirect back to the app with a success message or URI scheme
       res.redirect('yourapp://oauth/callback'); 
     } else {
       res.status(400).send('User ID is missing.');
     }
   } catch (error) {
     console.error('Error during Stripe OAuth callback:', error);
-    res.status(500).send(response.data.stripe_user_id);
+    res.status(500).send({ success: false, error: error.message });
+  }
+});
+
+exports.stripeMultiSellerPaymentIntent = functions.https.onRequest(async (req, res) => {
+  try {
+    const sellers = req.body.sellers;
+  
+    if (!sellers || !Array.isArray(sellers)) {
+      res.status(400).send({ success: false, message: "Invalid sellers data format" });
+      return;
+    }
+
+    const paymentResults = [];
+
+    for (const seller of sellers) {
+      const { stripeAccountId, amount } = seller;
+      if (!stripeAccountId || !amount) {
+        paymentResults.push({ success: false, message: "Missing stripeAccountId or amount", seller });
+        continue;
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: parseInt(amount),
+        currency: "usd",
+        payment_method_types: ["card"],
+        transfer_data: {
+          destination: stripeAccountId,
+        },
+        description: `Payment for Seller ${stripeAccountId}`,
+      });
+
+      paymentResults.push({
+        success: true,
+        paymentIntent: paymentIntent.client_secret,
+        seller: stripeAccountId,
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      paymentResults,
+    });
+  } catch (error) {
+    console.error("Error processing multi-seller payments:", error);
+    res.status(500).send({ success: false, error: error.message });
   }
 });
