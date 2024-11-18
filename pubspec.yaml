@@ -41,6 +41,7 @@ dependencies:
   firebase_auth: ^5.3.3
   cloud_firestore: ^5.5.0
   easy_url_launcher: ^0.0.7
+  flutter_stripe: ^11.2.0
 
 dev_dependencies:
   flutter_test:
