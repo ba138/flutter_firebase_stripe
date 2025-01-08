@@ -5,10 +5,12 @@ admin.initializeApp();
 
 const stripe = require('stripe')(functions.config().stripe.secret_key);
 
+
 exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
   const authorizationCode = req.query.code;
 
   try {
+    // Exchange the authorization code for a Stripe token
     const response = await axios.post('https://connect.stripe.com/oauth/token', null, {
       params: {
         client_id: functions.config().stripe.client_id,
@@ -20,11 +22,22 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
 
     const stripeAccountId = response.data.stripe_user_id;
     const userId = req.query.state;
+
     if (userId) {
+      // Store the stripe_account_id in Firestore
       await admin.firestore().collection('Sellers').doc(userId).update({
         stripeAccountId: stripeAccountId,
       });
-      res.redirect('yourapp://oauth/callback'); 
+
+      // Redirect the seller to the Stripe-hosted account setup page
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: 'yourapp://oauth/callback',
+        return_url: 'yourapp://oauth/callback',
+        type: 'account_onboarding',
+      });
+
+      res.redirect(accountLink.url); // Redirect to Stripe's account onboarding page
     } else {
       res.status(400).send('User ID is missing.');
     }
