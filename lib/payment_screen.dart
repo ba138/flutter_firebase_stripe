@@ -97,7 +97,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   // Example seller data
                   List<Map<String, dynamic>> sellers = [
                     {
-                      'stripeAccountId': 'acct_1QfETvK710PTgfwB',
+                      'stripeAccountId': 'acct_1QfO0hKDEFDNLABn',
                       'amount': 100000
                     },
                   ];
