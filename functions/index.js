@@ -32,8 +32,8 @@ exports.stripeOAuthCallback = functions.https.onRequest(async (req, res) => {
       // Redirect the seller to the Stripe-hosted account setup page
       const accountLink = await stripe.accountLinks.create({
         account: stripeAccountId,
-        refresh_url: 'yourapp://oauth/callback',
-        return_url: 'yourapp://oauth/callback',
+        refresh_url: 'https://oauth/callback',
+        return_url: 'https://oauth/callback',
         type: 'account_onboarding',
       });
 
@@ -67,7 +67,7 @@ exports.stripeMultiSellerPaymentIntent = functions.https.onRequest(async (req, r
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: parseInt(amount),
-        currency: "usd",
+        currency: "EUR",
         payment_method_types: ["card"],
         transfer_data: {
           destination: stripeAccountId,
@@ -91,3 +91,83 @@ exports.stripeMultiSellerPaymentIntent = functions.https.onRequest(async (req, r
     res.status(500).send({ success: false, error: error.message });
   }
 });
+exports.createPayout = functions.https.onRequest(async (req, res) => {
+  try {
+    const { stripeAccountId, amount, currency } = req.body;
+
+    // Validate input parameters
+    if (!stripeAccountId || !amount || !currency) {
+      res.status(400).send({ success: false, message: "Missing required parameters: stripeAccountId, amount, or currency." });
+      return;
+    }
+
+    const parsedAmount = parseInt(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      res.status(400).send({ success: false, message: "Invalid amount. It must be a positive integer in the smallest currency unit." });
+      return;
+    }
+
+    // Fetch account balance
+    const balance = await stripe.balance.retrieve({
+      stripeAccount: stripeAccountId,
+    });
+
+    // Find available balances in requested currency
+    const availableBalance = balance.available.find((b) => b.currency === currency.toLowerCase());
+
+    if (!availableBalance) {
+      res.status(400).send({
+        success: false,
+        message: `No available balance found for the currency ${currency.toUpperCase()}.`
+      });
+      return;
+    }
+
+    const availableAmountInMainUnit = (availableBalance.amount / 100).toFixed(2);
+
+    // Check if there is available balance in either 'card' or 'bank_account'
+    const availableCardBalance = availableBalance.source_types.card || 0;
+    const availableBankBalance = availableBalance.source_types.bank_account || 0;
+
+    // Ensure sufficient funds in either card or bank account
+    if (availableCardBalance + availableBankBalance < parsedAmount) {
+      res.status(400).send({
+        success: false,
+        message: `Insufficient balance for this payout. Available balance: ${availableAmountInMainUnit} ${currency.toUpperCase()}.`
+      });
+      return;
+    }
+
+    // Determine the source type for payout
+    let sourceType = 'bank_account'; // Default to bank_account
+    if (availableCardBalance >= parsedAmount) {
+      sourceType = 'card'; // If card balance is sufficient, use card
+    }
+
+    // Create the payout
+    const payout = await stripe.payouts.create(
+      {
+        amount: parsedAmount,
+        currency: currency.toLowerCase(),
+        source_type: sourceType,
+      },
+      {
+        stripeAccount: stripeAccountId,
+      }
+    );
+
+    res.status(200).send({
+      success: true,
+      message: "Payout created successfully.",
+      payout,
+    });
+  } catch (error) {
+    console.error("Error creating payout:", error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to create payout.",
+      error: error.message,
+    });
+  }
+});
+
