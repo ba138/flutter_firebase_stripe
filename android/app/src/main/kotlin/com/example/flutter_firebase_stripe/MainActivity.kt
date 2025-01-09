@@ -1,5 +1,7 @@
-package com.example.flutter_firebase_stripe
+package com.basit.flutter_firebase_stripe;
 
-import io.flutter.embedding.android.FlutterFragmentActivity
+import io.flutter.embedding.android.FlutterActivity;
 
-class MainActivity: FlutterFragmentActivity()
+public class MainActivity extends FlutterActivity {
+    // No additional code is needed if you're using Flutter embedding v2.
+}
